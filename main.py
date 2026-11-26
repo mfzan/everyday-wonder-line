@@ -19,21 +19,33 @@ ENTRY = (
 MAX_CHARS = 200
 
 
-def main():
-    sentence = ENTRY.strip()
-    if not sentence:
+def validate_sentence(sentence):
+    """Return the stripped sentence, or fail loudly if it is unusable."""
+    text = sentence.strip()
+    if not text:
         raise SystemExit("entry sentence is empty")
-    if len(sentence) > MAX_CHARS:
+    if len(text) > MAX_CHARS:
         raise SystemExit(
             "entry sentence is %d characters, over the %d limit"
-            % (len(sentence), MAX_CHARS)
+            % (len(text), MAX_CHARS)
         )
-    out_dir = os.environ.get("OUTPUT_DIR", "/output")
+    return text
+
+
+def write_entry(sentence, out_dir):
+    """Write the validated sentence to entry.txt with world-readable mode."""
     os.makedirs(out_dir, exist_ok=True)
     path = os.path.join(out_dir, "entry.txt")
     with open(path, "w", encoding="utf-8", newline="\n") as handle:
         handle.write(sentence + "\n")
     os.chmod(path, 0o644)
+    return path
+
+
+def main():
+    sentence = validate_sentence(ENTRY)
+    out_dir = os.environ.get("OUTPUT_DIR", "/output")
+    write_entry(sentence, out_dir)
 
 
 if __name__ == "__main__":
